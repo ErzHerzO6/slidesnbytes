@@ -3,8 +3,8 @@ package styles_test
 import (
 	"testing"
 
-	"github.com/charmbracelet/glamour"
-	"github.com/charmbracelet/glamour/ansi"
+	"charm.land/glamour/v2"
+	"charm.land/glamour/v2/styles"
 	"github.com/maaslalani/slides/styles"
 	"github.com/stretchr/testify/assert"
 )
