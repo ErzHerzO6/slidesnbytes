@@ -13,7 +13,7 @@ Slides in your terminal.
 
 <details markdown="block">
 <summary>Instructions</summary>
-
+<!-- 
 #### MacOS
 ```
 brew install slides
@@ -30,18 +30,17 @@ nix-env -iA nixpkgs.slides
 ```
 sudo snap install slides
 ```
+ -->
 #### Go
 ```
 go install github.com/maaslalani/slides@latest
 ```
 From source:
 ```
-git clone https://github.com/maaslalani/slides.git
+git clone https://github.com/ErzHerzO6/slidesnbytes.git
 cd slides
 go install
 ```
-
-You can also download a binary from the [releases](https://github.com/maaslalani/slides/releases) page.
 
 </details>
 
