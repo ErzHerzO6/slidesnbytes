@@ -15,7 +15,7 @@ import (
   "github.com/maaslalani/slides/internal/navigation"
   "github.com/maaslalani/slides/internal/process"
 
-  "github.com/charmbracelet/bubbles/viewport"
+  "charm.land/bubbles/v2/viewport"
 	tea "charm.land/bubbletea/v2"
   "charm.land/glamour/v2"
   "github.com/maaslalani/slides/internal/code"
@@ -113,8 +113,8 @@ func (m *Model) Load() error {
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
   switch msg := msg.(type) {
   case tea.WindowSizeMsg:
-    m.viewport.Width = msg.Width
-    m.viewport.Height = msg.Height
+    m.viewport.SetWidth(msg.Width)
+    m.viewport.SetHeight(msg.Height)
     return m, nil
 
   case tea.KeyMsg:
@@ -207,7 +207,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // View renders the current slide in the presentation and the status bar which
 // contains the author, date, and pagination information.
 func (m Model) View() tea.View {
-  r, _ := glamour.NewTermRenderer(m.Theme, glamour.WithWordWrap(m.viewport.Width))
+  r, _ := glamour.NewTermRenderer(m.Theme, glamour.WithWordWrap(m.viewport.Width()))
   slide := m.Slides[m.Page]
   slide = code.HideComments(slide)
   slide, err := r.Render(slide)
@@ -228,8 +228,8 @@ func (m Model) View() tea.View {
   }
 
   right := styles.Page.Render(m.paging())
-  status := styles.Status.Render(styles.JoinHorizontal(left, right, m.viewport.Width))
-	v := tea.NewView(styles.JoinVertical(slide, status, m.viewport.Height))
+  status := styles.Status.Render(styles.JoinHorizontal(left, right, m.viewport.Width()))
+	v := tea.NewView(styles.JoinVertical(slide, status, m.viewport.Height()))
 	v.AltScreen = true
 	return v
 }

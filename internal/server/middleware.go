@@ -1,31 +1,31 @@
 package server
 
 import (
-	"fmt"
+  "fmt"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/ssh"
-	"github.com/charmbracelet/wish"
-	bm "github.com/charmbracelet/wish/bubbletea"
-	"github.com/muesli/termenv"
+  tea "charm.land/bubbletea/v2"
+  "github.com/charmbracelet/ssh"
+  "charm.land/wish/v2"
+  bm "charm.land/wish/v2/bubbletea"
+  "github.com/charmbracelet/colorprofile"
 )
 
 func slidesMiddleware(srv *Server) wish.Middleware {
-	newProg := func(m tea.Model, opts ...tea.ProgramOption) *tea.Program {
-		p := tea.NewProgram(m, opts...)
-		return p
-	}
-	teaHandler := func(s ssh.Session) *tea.Program {
-		_, _, active := s.Pty()
-		if !active {
-			fmt.Println("no active terminal, skipping")
-			err := s.Exit(1)
-			if err != nil {
-				fmt.Println("Error exiting session")
-			}
-			return nil
-		}
-		return newProg(srv.presentation, tea.WithInput(s), tea.WithOutput(s), tea.WithAltScreen())
-	}
-	return bm.MiddlewareWithProgramHandler(teaHandler, termenv.ANSI256)
+  newProg := func(m tea.Model, opts ...tea.ProgramOption) *tea.Program {
+    p := tea.NewProgram(m, opts...)
+    return p
+  }
+  teaHandler := func(s ssh.Session) *tea.Program {
+    _, _, active := s.Pty()
+    if !active {
+      fmt.Println("no active terminal, skipping")
+      err := s.Exit(1)
+      if err != nil {
+        fmt.Println("Error exiting session")
+      }
+      return nil
+    }
+    return newProg(srv.presentation, tea.WithInput(s), tea.WithOutput(s), tea.WithColorProfile(colorprofile.ANSI256))
+  }
+  return bm.MiddlewareWithProgramHandler(teaHandler)
 }
