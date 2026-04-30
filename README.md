@@ -31,7 +31,7 @@ nix-env -iA nixpkgs.slides
 sudo snap install slides
 ```
  -->
-#### Go
+### Go
 ```
 go install github.com/maaslalani/slides@latest
 ```
