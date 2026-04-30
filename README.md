@@ -13,28 +13,12 @@ Slides in your terminal.
 
 <details markdown="block">
 <summary>Instructions</summary>
-<!-- 
-#### MacOS
-```
-brew install slides
-```
-#### Arch
-```
-yay -S slides
-```
-#### Nixpkgs (unstable)
-```
-nix-env -iA nixpkgs.slides
-```
-#### Any Linux Distro running `snapd`
-```
-sudo snap install slides
-```
- -->
+
 ### Go
 ```
 go install github.com/maaslalani/slides@latest
 ```
+
 From source:
 ```
 git clone https://github.com/ErzHerzO6/slidesnbytes.git
