@@ -4,8 +4,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/maaslalani/slides/styles"
+	"charm.land/bubbles/v2/textinput"
 )
 
 // Model is an interface for models.model, so that cycle imports are avoided
@@ -29,8 +29,10 @@ func NewSearch() Search {
 	ti := textinput.New()
 	ti.Placeholder = "search"
 	ti.Prompt = "/"
-	ti.PromptStyle = styles.Search
-	ti.TextStyle = styles.Search
+	s := textinput.DefaultStyles(true);
+	s.Focused.Prompt = styles.Search
+	s.Focused.Text = styles.Search
+	ti.SetStyles(s)
 	return Search{SearchTextInput: ti}
 }
 
