@@ -16,7 +16,7 @@ Slides in your terminal.
 
 ### Go
 ```
-go install github.com/maaslalani/slides@latest
+go install https://github.com/ErzHerzO6/slidesnbytes.git
 ```
 
 From source:
