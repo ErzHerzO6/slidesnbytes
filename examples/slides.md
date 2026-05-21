@@ -11,6 +11,7 @@ func main() {
 }
 ```
 
+
 ---
 
 ## Everything is markdown
@@ -29,9 +30,12 @@ In fact this entire presentation is a markdown file
 
 # Markdown components
 You can use everything in markdown!
+<!-- #break -->
 * Like bulleted list
+<!-- #break -->
 * You know the deal
 
+<!-- #break -->
 1. Numbered lists too
 
 ---
