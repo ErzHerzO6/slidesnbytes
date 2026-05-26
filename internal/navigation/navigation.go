@@ -1,6 +1,7 @@
 package navigation
 
 import (
+	"slices"
 	"strconv"
 )
 
@@ -8,9 +9,14 @@ type repeatableFunc func(slide, totalSlides int) int
 
 // State tracks the current buffer, page, and total number of slides
 type State struct {
-	Buffer      string
-	Page        int
-	TotalSlides int
+	Buffer string
+	// Page is keeping track of each slide. It doesn't matter if it's a break slide or not, it just counts the slides.
+	// This is used to render the slide, so we can't skip break slides when rendering, but we can skip them when calculating the current slide number.
+	// that's what CurrentSlide is for, it keeps track of the current slide number, excluding break slides, so we can use it to display the correct slide number in the UI.
+	Page             int
+	CurrentSlide     int
+	TotalSlides      int
+	SlidesWithBreaks []int
 }
 
 // Navigate receives the current State and keyPress, and returns the new State.
@@ -54,20 +60,52 @@ func Navigate(state State, keyPress string) State {
 		}
 	case " ", "down", "j", "right", "l", "enter", "n", "pgdown":
 		return State{
-			Page:        navigateNext(state),
-			TotalSlides: state.TotalSlides,
+			Page:         navigateNext(state),
+			CurrentSlide: calculateNextSlide(state),
+			TotalSlides:  state.TotalSlides,
 		}
 	case "up", "k", "left", "h", "p", "pgup", "N":
 		return State{
-			Page:        navigatePrevious(state),
-			TotalSlides: state.TotalSlides,
+			Page:         navigatePrevious(state),
+			CurrentSlide: calculatePrevSlide(state),
+			TotalSlides:  state.TotalSlides,
 		}
 	default:
 		return State{
-			Page:        state.Page,
-			TotalSlides: state.TotalSlides,
+			Page:         state.Page,
+			CurrentSlide: state.CurrentSlide,
+			TotalSlides:  state.TotalSlides,
 		}
 	}
+}
+
+func calculatePrevSlide(state State) int {
+	currentSlide := state.CurrentSlide
+	indexOfBreakSlide := slices.Index(state.SlidesWithBreaks, state.Page+1)
+	if indexOfBreakSlide != -1 {
+		currentSlide = state.Page - indexOfBreakSlide
+		return currentSlide
+	}
+
+	if state.CurrentSlide > 0 {
+		return state.CurrentSlide - 1
+	}
+
+	return currentSlide
+}
+func calculateNextSlide(state State) int {
+	currentSlide := state.CurrentSlide
+	indexOfBreakSlide := slices.Index(state.SlidesWithBreaks, state.Page+1)
+	if indexOfBreakSlide != -1 {
+		currentSlide = state.Page - indexOfBreakSlide
+		return currentSlide
+	}
+
+	if (state.CurrentSlide + len(state.SlidesWithBreaks)) < state.TotalSlides-1 {
+		return state.CurrentSlide + 1
+	}
+
+	return currentSlide
 }
 
 func bufferIsNumeric(buffer string) bool {
@@ -123,7 +161,7 @@ func repeatableAction(fn repeatableFunc, state State) int {
 		return fn(state.Page, state.TotalSlides)
 	}
 
-	for i := 0; i < repeat; i++ {
+	for range repeat {
 		page = fn(page, state.TotalSlides)
 	}
 

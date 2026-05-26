@@ -37,15 +37,17 @@ const (
 // Model represents the model of this presentation, which contains all the
 // state related to the current slides.
 type Model struct {
-	Slides   []string
-	Page     int
-	Author   string
-	Date     string
-	Theme    glamour.TermRendererOption
-	Paging   string
-	FileName string
-	viewport viewport.Model
-	buffer   string
+	Slides           []string
+	Page             int
+	CurrentSlide     int
+	SlidesWithBreaks []int // indices of slides that have break delimiters
+	Author           string
+	Date             string
+	Theme            glamour.TermRendererOption
+	Paging           string
+	FileName         string
+	viewport         viewport.Model
+	buffer           string
 	// VirtualText is used for additional information that is not part of the
 	// original slides, it will be displayed on a slide and reset on page change
 	VirtualText string
@@ -98,6 +100,10 @@ func (m *Model) Load() error {
 		parts := strings.Split(slide, breakDelimiter)
 		for i := range parts {
 			breakSlides = append(breakSlides, strings.Join(parts[:i+1], "\n"))
+			// store indices of slides that have break delimiters so we can apply different styling to the pagination
+			if i > 0 {
+				m.SlidesWithBreaks = append(m.SlidesWithBreaks, len(breakSlides)-1)
+			}
 		}
 	}
 
@@ -194,12 +200,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		default:
 			newState := navigation.Navigate(navigation.State{
-				Buffer:      m.buffer,
-				Page:        m.Page,
-				TotalSlides: len(m.Slides),
+				Buffer:           m.buffer,
+				Page:             m.Page,
+				CurrentSlide:     m.CurrentSlide,
+				TotalSlides:      len(m.Slides),
+				SlidesWithBreaks: m.SlidesWithBreaks,
 			}, keyPress)
 			m.buffer = newState.Buffer
 			m.SetPage(newState.Page)
+			m.SetCurrentSlide(newState.CurrentSlide)
 		}
 
 	case fileWatchMsg:
@@ -249,7 +258,7 @@ func (m Model) View() tea.View {
 func (m *Model) paging() string {
 	switch strings.Count(m.Paging, "%d") {
 	case 2:
-		return fmt.Sprintf(m.Paging, m.Page+1, len(m.Slides))
+		return fmt.Sprintf(m.Paging, m.CurrentSlide+1, len(m.Slides)-len(m.SlidesWithBreaks))
 	case 1:
 		return fmt.Sprintf(m.Paging, m.Page+1)
 	default:
@@ -325,6 +334,19 @@ func (m *Model) SetPage(page int) {
 
 	m.VirtualText = ""
 	m.Page = page
+}
+
+func (m *Model) CurrentSlideNumber() int {
+	return m.CurrentSlide
+}
+
+func (m *Model) SetCurrentSlide(slide int) {
+	if m.CurrentSlide == slide {
+		return
+	}
+
+	m.VirtualText = ""
+	m.CurrentSlide = slide
 }
 
 // Pages returns all the slides in the presentation.
