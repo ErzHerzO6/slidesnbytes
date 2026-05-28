@@ -6,9 +6,9 @@ import (
   "time"
 
   tea "charm.land/bubbletea/v2"
-  "github.com/maaslalani/slides/internal/cmd"
-  "github.com/maaslalani/slides/internal/model"
-  "github.com/maaslalani/slides/internal/navigation"
+  "github.com/ErzHerzO6/slidesnbytes/internal/cmd"
+  "github.com/ErzHerzO6/slidesnbytes/internal/model"
+  "github.com/ErzHerzO6/slidesnbytes/internal/navigation"
   "github.com/muesli/coral"
 )
 

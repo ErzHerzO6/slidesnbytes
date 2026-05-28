@@ -8,7 +8,7 @@ import (
   charmStyles "charm.land/glamour/v2/styles"
   "github.com/stretchr/testify/assert"
 
-  "github.com/maaslalani/slides/styles"
+  "github.com/ErzHerzO6/slidesnbytes/styles"
 )
 
 func TestSelectTheme(t *testing.T) {

@@ -4,7 +4,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/maaslalani/slides/styles"
+	"github.com/ErzHerzO6/slidesnbytes/styles"
 	"charm.land/bubbles/v2/textinput"
 )
 
