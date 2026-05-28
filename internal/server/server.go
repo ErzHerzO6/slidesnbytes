@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"charm.land/wish/v2"
+	"github.com/ErzHerzO6/slidesnbytes/internal/model"
 	"github.com/charmbracelet/ssh"
-	"github.com/maaslalani/slides/internal/model"
 )
 
 // Server is the server for hosting this presentation.

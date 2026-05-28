@@ -1,4 +1,4 @@
-module github.com/maaslalani/slides
+module github.com/ErzHerzO6/slidesnbytes
 
 go 1.25.9
 

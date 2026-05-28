@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"charm.land/bubbles/v2/textinput"
-	"github.com/maaslalani/slides/styles"
+	"github.com/ErzHerzO6/slidesnbytes/styles"
 )
 
 // Model is an interface for models.model, so that cycle imports are avoided

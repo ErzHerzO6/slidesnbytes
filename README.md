@@ -14,34 +14,17 @@ Slides in your terminal.
 <details markdown="block">
 <summary>Instructions</summary>
 
-#### MacOS
+### Go
 ```
-brew install slides
+go install https://github.com/ErzHerzO6/slidesnbytes.git
 ```
-#### Arch
-```
-yay -S slides
-```
-#### Nixpkgs (unstable)
-```
-nix-env -iA nixpkgs.slides
-```
-#### Any Linux Distro running `snapd`
-```
-sudo snap install slides
-```
-#### Go
-```
-go install github.com/maaslalani/slides@latest
-```
+
 From source:
 ```
-git clone https://github.com/maaslalani/slides.git
+git clone https://github.com/ErzHerzO6/slidesnbytes.git
 cd slides
 go install
 ```
-
-You can also download a binary from the [releases](https://github.com/maaslalani/slides/releases) page.
 
 </details>
 
