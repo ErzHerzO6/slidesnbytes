@@ -11,16 +11,16 @@ import (
   "time"
 
   "github.com/atotto/clipboard"
-  "github.com/maaslalani/slides/internal/file"
-  "github.com/maaslalani/slides/internal/navigation"
-  "github.com/maaslalani/slides/internal/process"
+  "github.com/ErzHerzO6/slidesnbytes/internal/file"
+  "github.com/ErzHerzO6/slidesnbytes/internal/navigation"
+  "github.com/ErzHerzO6/slidesnbytes/internal/process"
 
   "charm.land/bubbles/v2/viewport"
 	tea "charm.land/bubbletea/v2"
   "charm.land/glamour/v2"
-  "github.com/maaslalani/slides/internal/code"
-  "github.com/maaslalani/slides/internal/meta"
-  "github.com/maaslalani/slides/styles"
+  "github.com/ErzHerzO6/slidesnbytes/internal/code"
+  "github.com/ErzHerzO6/slidesnbytes/internal/meta"
+  "github.com/ErzHerzO6/slidesnbytes/styles"
 )
 
 var (
