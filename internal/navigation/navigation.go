@@ -30,82 +30,107 @@ func Navigate(state State, keyPress string) State {
 		}
 
 		return State{
-			Buffer:      newBuffer,
-			Page:        state.Page,
-			TotalSlides: state.TotalSlides,
+			Buffer:           newBuffer,
+			Page:             state.Page,
+			CurrentSlide:     state.CurrentSlide,
+			TotalSlides:      state.TotalSlides,
+			SlidesWithBreaks: state.SlidesWithBreaks,
 		}
 	case "g":
 		switch state.Buffer {
 		case "g":
 			return State{
-				Page:        0,
-				TotalSlides: state.TotalSlides,
+				Page:             0,
+				CurrentSlide:     0,
+				TotalSlides:      state.TotalSlides,
+				SlidesWithBreaks: state.SlidesWithBreaks,
 			}
 		default:
 			return State{
-				Buffer:      "g",
-				Page:        state.Page,
-				TotalSlides: state.TotalSlides,
+				Buffer:           "g",
+				Page:             state.Page,
+				CurrentSlide:     state.CurrentSlide,
+				TotalSlides:      state.TotalSlides,
+				SlidesWithBreaks: state.SlidesWithBreaks,
 			}
 		}
 	case "G":
-		targetSlide := state.TotalSlides - 1
+		targetPage := state.TotalSlides - 1
 		if bufferIsNumeric(state.Buffer) {
-			targetSlide = navigateSlide(state.Buffer, state.TotalSlides)
+			targetPage = navigateSlide(state.Buffer, state.TotalSlides)
 		}
 
 		return State{
-			Page:        targetSlide,
-			TotalSlides: state.TotalSlides,
+			Page:             targetPage,
+			CurrentSlide:     calculateCurrentSlideForPage(targetPage, state.SlidesWithBreaks),
+			TotalSlides:      state.TotalSlides,
+			SlidesWithBreaks: state.SlidesWithBreaks,
 		}
 	case " ", "down", "j", "right", "l", "enter", "n", "pgdown":
 		return State{
-			Page:         navigateNext(state),
-			CurrentSlide: calculateNextSlide(state),
-			TotalSlides:  state.TotalSlides,
+			Page:             navigateNext(state),
+			CurrentSlide:     calculateNextSlide(state),
+			TotalSlides:      state.TotalSlides,
+			SlidesWithBreaks: state.SlidesWithBreaks,
 		}
 	case "up", "k", "left", "h", "p", "pgup", "N":
 		return State{
-			Page:         navigatePrevious(state),
-			CurrentSlide: calculatePrevSlide(state),
-			TotalSlides:  state.TotalSlides,
+			Page:             navigatePrevious(state),
+			CurrentSlide:     calculatePrevSlide(state),
+			TotalSlides:      state.TotalSlides,
+			SlidesWithBreaks: state.SlidesWithBreaks,
 		}
 	default:
 		return State{
-			Page:         state.Page,
-			CurrentSlide: state.CurrentSlide,
-			TotalSlides:  state.TotalSlides,
+			Page:             state.Page,
+			CurrentSlide:     state.CurrentSlide,
+			TotalSlides:      state.TotalSlides,
+			SlidesWithBreaks: state.SlidesWithBreaks,
 		}
 	}
 }
 
-func calculatePrevSlide(state State) int {
+func calculateNextSlide(state State) int {
+	nextPage := navigateNext(state)
 	currentSlide := state.CurrentSlide
-	indexOfBreakSlide := slices.Index(state.SlidesWithBreaks, state.Page+1)
-	if indexOfBreakSlide != -1 {
-		currentSlide = state.Page - indexOfBreakSlide
-		return currentSlide
+	// For each page advanced, only increment CurrentSlide if that page is not a break slide
+	for p := state.Page + 1; p <= nextPage; p++ {
+		if !slices.Contains(state.SlidesWithBreaks, p) {
+			currentSlide++
+		}
 	}
-
-	if state.CurrentSlide > 0 {
-		return state.CurrentSlide - 1
+	maxSlide := state.TotalSlides - 1 - len(state.SlidesWithBreaks)
+	if currentSlide > maxSlide {
+		return maxSlide
 	}
-
 	return currentSlide
 }
-func calculateNextSlide(state State) int {
+
+func calculatePrevSlide(state State) int {
+	prevPage := navigatePrevious(state)
+	// Count how many pages we're going back
 	currentSlide := state.CurrentSlide
-	indexOfBreakSlide := slices.Index(state.SlidesWithBreaks, state.Page+1)
-	if indexOfBreakSlide != -1 {
-		currentSlide = state.Page - indexOfBreakSlide
-		return currentSlide
+	for p := state.Page; p > prevPage; p-- {
+		if !slices.Contains(state.SlidesWithBreaks, p) {
+			currentSlide--
+		}
 	}
-
-	if (state.CurrentSlide + len(state.SlidesWithBreaks)) < state.TotalSlides-1 {
-		return state.CurrentSlide + 1
+	if currentSlide < 0 {
+		return 0
 	}
-
 	return currentSlide
+}
+
+// calculateCurrentSlideForPage calculates the logical slide number for a given page,
+// accounting for break slides. Used when jumping directly to a page (G, gg).
+func calculateCurrentSlideForPage(page int, slidesWithBreaks []int) int {
+	breaksBefore := 0
+	for _, breakPage := range slidesWithBreaks {
+		if breakPage <= page {
+			breaksBefore++
+		}
+	}
+	return page - breaksBefore
 }
 
 func bufferIsNumeric(buffer string) bool {

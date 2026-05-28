@@ -40,7 +40,7 @@ func TestNavigation(t *testing.T) {
 				currentState = Navigate(currentState, key)
 			}
 
-			targetState := State{Page: tt.target, TotalSlides: 11}
+			targetState := State{Page: tt.target, CurrentSlide: tt.target, TotalSlides: 11}
 			assert.Equal(t, targetState, currentState)
 		})
 	}
