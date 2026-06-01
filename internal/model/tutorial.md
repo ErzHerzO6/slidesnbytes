@@ -47,6 +47,25 @@ You can use everything in markdown!
 
 ---
 
+
+# Progressive Reveal
+
+Text can appear step by step using `<!-- #break -->`:
+
+- This point is visible immediately
+
+<!-- #break -->
+
+- This appears after pressing next
+
+<!-- #break -->
+
+- And this is the final reveal
+
+Great for building up ideas incrementally!
+
+---
+
 # Graphs
 
 ```
