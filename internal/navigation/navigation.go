@@ -1,7 +1,6 @@
 package navigation
 
 import (
-	"slices"
 	"strconv"
 )
 
@@ -30,82 +29,85 @@ func Navigate(state State, keyPress string) State {
 		}
 
 		return State{
-			Buffer:      newBuffer,
-			Page:        state.Page,
-			TotalSlides: state.TotalSlides,
+			Buffer:           newBuffer,
+			Page:             state.Page,
+			CurrentSlide:     state.CurrentSlide,
+			TotalSlides:      state.TotalSlides,
+			SlidesWithBreaks: state.SlidesWithBreaks,
 		}
 	case "g":
 		switch state.Buffer {
 		case "g":
 			return State{
-				Page:        0,
-				TotalSlides: state.TotalSlides,
+				Page:             0,
+				CurrentSlide:     0,
+				TotalSlides:      state.TotalSlides,
+				SlidesWithBreaks: state.SlidesWithBreaks,
 			}
 		default:
 			return State{
-				Buffer:      "g",
-				Page:        state.Page,
-				TotalSlides: state.TotalSlides,
+				Buffer:           "g",
+				Page:             state.Page,
+				CurrentSlide:     state.CurrentSlide,
+				TotalSlides:      state.TotalSlides,
+				SlidesWithBreaks: state.SlidesWithBreaks,
 			}
 		}
 	case "G":
-		targetSlide := state.TotalSlides - 1
+		targetPage := state.TotalSlides - 1
 		if bufferIsNumeric(state.Buffer) {
-			targetSlide = navigateSlide(state.Buffer, state.TotalSlides)
+			targetPage = navigateSlide(state.Buffer, state.TotalSlides)
 		}
 
 		return State{
-			Page:        targetSlide,
-			TotalSlides: state.TotalSlides,
+			Page:             targetPage,
+			CurrentSlide:     calculateCurrentSlideForPage(targetPage, state.SlidesWithBreaks),
+			TotalSlides:      state.TotalSlides,
+			SlidesWithBreaks: state.SlidesWithBreaks,
 		}
 	case " ", "down", "j", "right", "l", "enter", "n", "pgdown":
+		nextPage := navigateNext(state)
 		return State{
-			Page:         navigateNext(state),
-			CurrentSlide: calculateNextSlide(state),
-			TotalSlides:  state.TotalSlides,
+			Page:             nextPage,
+			CurrentSlide:     calculateCurrentSlideForPage(nextPage, state.SlidesWithBreaks),
+			TotalSlides:      state.TotalSlides,
+			SlidesWithBreaks: state.SlidesWithBreaks,
 		}
 	case "up", "k", "left", "h", "p", "pgup", "N":
+		prevPage := navigatePrevious(state)
 		return State{
-			Page:         navigatePrevious(state),
-			CurrentSlide: calculatePrevSlide(state),
-			TotalSlides:  state.TotalSlides,
+			Page:             prevPage,
+			CurrentSlide:     calculateCurrentSlideForPage(prevPage, state.SlidesWithBreaks),
+			TotalSlides:      state.TotalSlides,
+			SlidesWithBreaks: state.SlidesWithBreaks,
 		}
 	default:
 		return State{
-			Page:         state.Page,
-			CurrentSlide: state.CurrentSlide,
-			TotalSlides:  state.TotalSlides,
+			Page:             state.Page,
+			CurrentSlide:     state.CurrentSlide,
+			TotalSlides:      state.TotalSlides,
+			SlidesWithBreaks: state.SlidesWithBreaks,
 		}
 	}
 }
 
-func calculatePrevSlide(state State) int {
-	currentSlide := state.CurrentSlide
-	indexOfBreakSlide := slices.Index(state.SlidesWithBreaks, state.Page+1)
-	if indexOfBreakSlide != -1 {
-		currentSlide = state.Page - indexOfBreakSlide
-		return currentSlide
+// calculateCurrentSlideForPage calculates the logical slide number for a given page,
+// accounting for break slides. Break slides don't count as separate logical slides.
+//
+// Example: Pages [0, 1, 2, 3, 4, 5, 6, 7] with SlidesWithBreaks=[4, 5, 6]
+//   - Page 3 → 3 breaks before: 0 → CurrentSlide = 3
+//   - Page 4 → 1 break ≤ 4      → CurrentSlide = 3
+//   - Page 5 → 2 breaks ≤ 5     → CurrentSlide = 3
+//   - Page 6 → 3 breaks ≤ 6     → CurrentSlide = 3
+//   - Page 7 → 3 breaks ≤ 7     → CurrentSlide = 4
+func calculateCurrentSlideForPage(page int, slidesWithBreaks []int) int {
+	breaksBefore := 0
+	for _, breakPage := range slidesWithBreaks {
+		if breakPage <= page {
+			breaksBefore++
+		}
 	}
-
-	if state.CurrentSlide > 0 {
-		return state.CurrentSlide - 1
-	}
-
-	return currentSlide
-}
-func calculateNextSlide(state State) int {
-	currentSlide := state.CurrentSlide
-	indexOfBreakSlide := slices.Index(state.SlidesWithBreaks, state.Page+1)
-	if indexOfBreakSlide != -1 {
-		currentSlide = state.Page - indexOfBreakSlide
-		return currentSlide
-	}
-
-	if (state.CurrentSlide + len(state.SlidesWithBreaks)) < state.TotalSlides-1 {
-		return state.CurrentSlide + 1
-	}
-
-	return currentSlide
+	return page - breaksBefore
 }
 
 func bufferIsNumeric(buffer string) bool {
