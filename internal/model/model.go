@@ -114,6 +114,14 @@ func (m *Model) Load() error {
 	// skip the first "slide" since this is all configuration
 	if exists && len(slides) > 1 {
 		slides = slides[1:]
+		// Adjust break indices since we removed the first slide (metadata)
+		adjusted := make([]int, 0, len(m.SlidesWithBreaks))
+		for _, idx := range m.SlidesWithBreaks {
+			if idx > 0 {
+				adjusted = append(adjusted, idx-1)
+			}
+		}
+		m.SlidesWithBreaks = adjusted
 	}
 
 	m.Slides = slides

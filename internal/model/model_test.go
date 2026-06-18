@@ -107,6 +107,8 @@ func TestLoad_WithMetadataAndBreaks(t *testing.T) {
 	assert.Len(t, m.Slides, 3)
 	assert.Equal(t, "Test", m.Author)
 	assert.Contains(t, m.Slides[0], "Slide 1")
+	// Break index should be adjusted (was 2 before metadata removal, now 1)
+	assert.Equal(t, []int{1}, m.SlidesWithBreaks)
 }
 
 func TestLoad_InvalidBreakSyntaxIgnored(t *testing.T) {
