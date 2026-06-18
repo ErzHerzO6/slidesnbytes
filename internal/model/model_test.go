@@ -180,13 +180,15 @@ func TestPaging_WithoutBreaks(t *testing.T) {
 
 func TestSetPage_ResetsVirtualText(t *testing.T) {
 	m := Model{
-		Slides:      []string{"a", "b", "c"},
-		Page:        0,
-		VirtualText: "some output",
+		Slides:           []string{"a", "b", "c"},
+		Page:             0,
+		VirtualText:      "some output",
+		SlidesWithBreaks: nil,
 	}
 
 	m.SetPage(1)
 	assert.Equal(t, 1, m.Page)
+	assert.Equal(t, 1, m.CurrentSlide) // no breaks, so CurrentSlide == Page
 	assert.Empty(t, m.VirtualText)
 }
 
@@ -200,6 +202,26 @@ func TestSetPage_SamePageNoChange(t *testing.T) {
 	m.SetPage(1)
 	assert.Equal(t, 1, m.Page)
 	assert.Equal(t, "keep this", m.VirtualText) // not reset because page didn't change
+}
+
+func TestSetPage_WithBreaks(t *testing.T) {
+	// Pages: 0=slide0, 1=slide1, 2=break, 3=break, 4=slide2
+	m := Model{
+		Slides:           []string{"a", "ab", "abc", "abcd", "e"},
+		Page:             0,
+		CurrentSlide:     0,
+		SlidesWithBreaks: []int{2, 3},
+	}
+
+	// Jump to a break page → CurrentSlide should stay at slide 1
+	m.SetPage(2)
+	assert.Equal(t, 2, m.Page)
+	assert.Equal(t, 1, m.CurrentSlide) // page 2 - 1 break(2) = 1
+
+	// Jump to page after breaks
+	m.SetPage(4)
+	assert.Equal(t, 4, m.Page)
+	assert.Equal(t, 2, m.CurrentSlide) // page 4 - 2 breaks(2,3) = 2
 }
 
 func TestSetCurrentSlide_ResetsVirtualText(t *testing.T) {

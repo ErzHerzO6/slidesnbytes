@@ -216,7 +216,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}, keyPress)
 			m.buffer = newState.Buffer
 			m.SetPage(newState.Page)
-			m.SetCurrentSlide(newState.CurrentSlide)
 		}
 
 	case fileWatchMsg:
@@ -342,6 +341,14 @@ func (m *Model) SetPage(page int) {
 
 	m.VirtualText = ""
 	m.Page = page
+	// Recalculate CurrentSlide based on break positions
+	breaksBefore := 0
+	for _, bp := range m.SlidesWithBreaks {
+		if bp <= page {
+			breaksBefore++
+		}
+	}
+	m.CurrentSlide = page - breaksBefore
 }
 
 func (m *Model) CurrentSlideNumber() int {
