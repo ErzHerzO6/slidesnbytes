@@ -96,6 +96,7 @@ func (m *Model) Load() error {
 
 	// Process break delimiter to create additional slides for incremental reveals
 	breakSlides := make([]string, 0)
+	m.SlidesWithBreaks = nil // reset for file reload
 	for _, slide := range slides {
 		parts := strings.Split(slide, breakDelimiter)
 		for i := range parts {
