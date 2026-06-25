@@ -96,6 +96,7 @@ func (m *Model) Load() error {
 
 	// Process break delimiter to create additional slides for incremental reveals
 	breakSlides := make([]string, 0)
+	m.SlidesWithBreaks = nil // reset for file reload
 	for _, slide := range slides {
 		parts := strings.Split(slide, breakDelimiter)
 		for i := range parts {
@@ -114,6 +115,14 @@ func (m *Model) Load() error {
 	// skip the first "slide" since this is all configuration
 	if exists && len(slides) > 1 {
 		slides = slides[1:]
+		// Adjust break indices since we removed the first slide (metadata)
+		adjusted := make([]int, 0, len(m.SlidesWithBreaks))
+		for _, idx := range m.SlidesWithBreaks {
+			if idx > 0 {
+				adjusted = append(adjusted, idx-1)
+			}
+		}
+		m.SlidesWithBreaks = adjusted
 	}
 
 	m.Slides = slides
@@ -208,7 +217,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}, keyPress)
 			m.buffer = newState.Buffer
 			m.SetPage(newState.Page)
-			m.SetCurrentSlide(newState.CurrentSlide)
 		}
 
 	case fileWatchMsg:
@@ -334,6 +342,14 @@ func (m *Model) SetPage(page int) {
 
 	m.VirtualText = ""
 	m.Page = page
+	// Recalculate CurrentSlide based on break positions
+	breaksBefore := 0
+	for _, bp := range m.SlidesWithBreaks {
+		if bp <= page {
+			breaksBefore++
+		}
+	}
+	m.CurrentSlide = page - breaksBefore
 }
 
 func (m *Model) CurrentSlideNumber() int {
